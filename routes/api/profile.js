@@ -3,7 +3,7 @@ const router = express.Router();
 const auth = require("../../middleware/auth");
 const Profile = require("../../models/Profile");
 const User = require("../../models/User");
-const Post = require("../../models/Post");
+const Post = require("../../models/Match");
 const { check, validationResult } = require("express-validator");
 const config = require("config");
 const request = require("request");
@@ -26,7 +26,7 @@ router.get("/me", auth, async (req, res) => {
   }
 });
 
-//@route    GET api/profile
+//@route    POST api/profile
 //@desc     Post profile to user
 //@access   Public
 router.post(

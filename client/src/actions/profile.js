@@ -119,3 +119,35 @@ export const deleteAccount = () => async (dispatch) => {
     }
   }
 };
+
+//Get current profile matches
+export const getMatch = () => async (dispatch) => {
+  try {
+    const res = await axios.get("/api/profile/me/match");
+    dispatch({
+      type: GET_PROFILE,
+      payload: res.data,
+    });
+  } catch (err) {
+    dispatch({
+      type: PROFILE_ERROR,
+      payload: { msg: err.response.statusText, status: err.response.status },
+    });
+  }
+};
+
+//Delete current profile matches
+export const deleteMatches = () => async (dispatch) => {
+  try {
+    const res = await axios.delete("/api/profile/me/match");
+    dispatch({
+      type: GET_PROFILE,
+      payload: res.data,
+    });
+  } catch (err) {
+    dispatch({
+      type: PROFILE_ERROR,
+      payload: { msg: err.response.statusText, status: err.response.status },
+    });
+  }
+};

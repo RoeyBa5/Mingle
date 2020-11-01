@@ -3,13 +3,13 @@ const router = express.Router();
 const auth = require("../../middleware/auth");
 const Profile = require("../../models/Profile");
 const User = require("../../models/User");
-const Post = require("../../models/Match");
+const Match = require("../../models/Match");
 const { check, validationResult } = require("express-validator");
 const config = require("config");
 const request = require("request");
 
 //@route    GET api/profile/me
-//@desc     Get current users profile
+//@desc     Get current user's profile
 //@access   Public
 router.get("/me", auth, async (req, res) => {
   try {
@@ -144,8 +144,6 @@ router.get("/user/:user_id", async (req, res) => {
 //@access   Priavte
 router.delete("/", auth, async (req, res) => {
   try {
-    //Remove Posts
-    await Post.deleteMany({ user: req.user.id });
     //Remove Profile
     await Profile.findOneAndRemove({ user: req.user.id });
     //Remove User
@@ -157,5 +155,87 @@ router.delete("/", auth, async (req, res) => {
     res.status(500).send("Server Error");
   }
 });
+
+//@route    GET api/profile/me/match
+//@desc     Get current user's matches
+//@access   Public
+router.get("/me/match", auth, async (req, res) => {
+  try {
+    const profile = await Profile.findOne({
+      user: req.user.id,
+    }).populate("user");
+
+    if (!profile)
+      return res.status(400).json({ msg: "There is no profile for this user" });
+
+    let matchesToSchedule = profile.desiredperweek - profile.scheduledthisweek;
+
+    const profiles = await Profile.find().populate("user", ["name", "avatar"]);
+
+    // Filter profiles from the current user id, the ones who apears in the met people in the current user,
+    // and the ones who don't need another meeting this week
+
+    profiles.filter(
+      (prof) =>
+        prof.user._id !== profile.user._id &&
+        profile.listofpeoplemet.indexOf(prof.user._id) === -1 &&
+        prof.desiredperweek - prof.scheduledthisweek > 0
+    );
+
+    const match = () => {
+      profile.scheduledthisweek++;
+      profile.listofpeoplemet.push(profiles[0].id);
+      profiles[0].scheduledthisweek++;
+      profiles[0].listofpeoplemet.push(profile.id);
+      profiles.shift();
+      matchesToSchedule--;
+    };
+
+    if (!profiles[0]) {
+      console.log("No free profiles for matches");
+      return status(400).json({ msg: "No free profiles for matches" });
+    }
+    //Schedule meetnig in case no matches to schedule this week (match only one)
+    if (matchesToSchedule === 0) {
+      match();
+      return res.json(profile);
+    }
+
+    //Schedule meetings and update each profile in case there are more matches to shcedule this week
+    while (matchesToSchedule > 0) {
+      if (!profiles[0]) {
+        return status(400).json({ msg: "No free profiles for matches" });
+      }
+      match();
+    }
+    return res.json(profile);
+  } catch (err) {
+    console.error(err.message);
+    return res.status(500).send("Server Error");
+  }
+});
+
+//@route    DELETE api/profile/me/match
+//@desc     Delete current user's matches
+//@access   Public
+router.delete("/me/match", auth, async (req, res) => {
+  try {
+    const profile = await Profile.findOne({
+      user: req.user.id,
+    }).populate("user");
+
+    if (!profile) {
+      return res.status(400).json({ msg: "There is no profile for this user" });
+    }
+
+    profile.listofpeoplemet = [];
+
+    return res.json(profile);
+  } catch (err) {
+    console.error(err.message);
+    return res.status(500).send("Server Error");
+  }
+});
+module.exports = router;
 
 module.exports = router;

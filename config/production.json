@@ -1,6 +1,0 @@
-{
-    "mongoURI": "mongodb+srv://roeyba5:WkAlZcQ0SpWYspEV@cluster0.5wnro.mongodb.net/<dbname>?retryWrites=true&w=majority",
-    "jwtSecret": "TelAviv123",
-    "githubClientId": "2b56bd02de3a38f7cef5",
-    "githubSecret": "20beb26c8f6f8d2b4c810806290267378516d4e3" 
-}

@@ -33,7 +33,7 @@ const Dashboard = ({
             <button onClick={() => getMatch()} className='btn btn-primary'>
               Mingle
             </button>
-            <button onClick={() => deleteMatches()} className='btn btn-light'>
+            <button onClick={() => deleteMatches()} className='btn btn-'>
               Clear
             </button>
             <button className='btn btn-danger' onClick={() => deleteAccount()}>

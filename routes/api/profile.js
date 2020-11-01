@@ -184,9 +184,9 @@ router.get("/me/match", auth, async (req, res) => {
 
     const match = () => {
       profile.scheduledthisweek++;
-      profile.listofpeoplemet.push(profiles[0].id);
+      profile.listofpeoplemet.push(profiles[0].user.id);
       profiles[0].scheduledthisweek++;
-      profiles[0].listofpeoplemet.push(profile.id);
+      profiles[0].listofpeoplemet.push(profile.user.id);
       profiles.shift();
       matchesToSchedule--;
     };
